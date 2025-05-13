@@ -1,0 +1,150 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Романтический пазл: Георгий и Максим Сергеевич</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom right, #ffc0cb, #dda0dd);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #puzzle {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 2px;
+            margin-top: 50px;
+        }
+        .tile {
+            width: 100px;
+            height: 100px;
+            background-size: 300px 300px;
+            cursor: pointer;
+            border: 1px solid #fff;
+        }
+        #dialogue {
+            margin-top: 30px;
+            background: #fff;
+            padding: 15px 20px;
+            border-radius: 10px;
+            max-width: 350px;
+            text-align: left;
+            font-size: 16px;
+            line-height: 1.5em;
+        }
+        #congrats {
+            display: none;
+            margin-top: 40px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #800080;
+            text-align: center;
+        }
+        #final-image {
+            display: none;
+            margin-top: 20px;
+            width: 300px;
+            height: 300px;
+        }
+        audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Собери пазл любви</h1>
+    <audio autoplay loop>
+        <source src="romantic_music.mp3" type="audio/mpeg">
+    </audio>
+    <div id="puzzle"></div>
+    <div id="dialogue"><strong>Георгий:</strong> Ты всегда так улыбаешься, когда рядом со мной?</div>
+    <div id="congrats">🎉 ПОЗДРАВЛЯЮ! ТЫ ГЕЙ! 🌈</div>
+    <img id="final-image" src="IMG_5268.png" alt="Final Image">
+
+    <script>
+        const puzzle = document.getElementById('puzzle');
+        const dialogueBox = document.getElementById('dialogue');
+        const finalImage = document.getElementById('final-image');
+        const congrats = document.getElementById('congrats');
+
+        const dialogues = [
+            "<strong>Максим Сергеевич:</strong> Может, потому что ты рядом — это мой любимый момент дня.",
+            "<strong>Георгий:</strong> Надеюсь, ты не против, что я постоянно на тебя смотрю.",
+            "<strong>Максим Сергеевич:</strong> Только если будешь улыбаться в ответ.",
+            "<strong>Георгий:</strong> В шуме стройки ты — мой самый тёплый звук.",
+            "<strong>Максим Сергеевич:</strong> А ты в химии хоть что-то понимаешь, кроме формулы любви?",
+            "<strong>Георгий:</strong> Я инженер, но ты — моя лучшая конструкция.",
+            "<strong>Максим Сергеевич:</strong> Удивительно, как ты собрал и меня, и этот пазл.",
+            "<strong>Георгий:</strong> Знаешь, я не просто инженер, я романтик.",
+            "<strong>Максим Сергеевич:</strong> А я химик, но похоже, ты — моя формула счастья."
+        ];
+
+        let moveCount = 0;
+
+        const pieces = Array.from({length: 9}, (_, i) => i);
+        pieces.sort(() => Math.random() - 0.5);
+
+        function createTile(index, position) {
+            const tile = document.createElement('div');
+            tile.className = 'tile';
+            tile.style.backgroundImage = "url('IMG_5268.png')";
+            tile.style.backgroundPosition = `-${(index % 3) * 100}px -${Math.floor(index / 3) * 100}px`;
+            tile.dataset.index = index;
+            tile.dataset.position = position;
+            tile.addEventListener('click', () => handleTileClick(tile));
+            return tile;
+        }
+
+        function drawPuzzle() {
+            puzzle.innerHTML = '';
+            pieces.forEach((pos, i) => {
+                const tile = createTile(pos, i);
+                puzzle.appendChild(tile);
+            });
+        }
+
+        let selectedTile = null;
+
+        function handleTileClick(tile) {
+            if (!selectedTile) {
+                selectedTile = tile;
+                tile.style.border = '2px solid red';
+            } else {
+                const idx1 = parseInt(selectedTile.dataset.position);
+                const idx2 = parseInt(tile.dataset.position);
+
+                [pieces[idx1], pieces[idx2]] = [pieces[idx2], pieces[idx1]];
+                selectedTile.style.border = '1px solid #fff';
+                selectedTile = null;
+                drawPuzzle();
+
+                if (moveCount < dialogues.length) {
+                    const newLine = document.createElement('div');
+                    newLine.innerHTML = dialogues[moveCount];
+                    dialogueBox.appendChild(newLine);
+                    moveCount++;
+                }
+
+                checkCompletion();
+            }
+        }
+
+        function checkCompletion() {
+            for (let i = 0; i < pieces.length; i++) {
+                if (pieces[i] !== i) return;
+            }
+            puzzle.style.display = 'none';
+            finalImage.style.display = 'block';
+            congrats.style.display = 'block';
+        }
+
+        drawPuzzle();
+    </script>
+</body>
+</html>
